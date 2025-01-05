@@ -38,6 +38,9 @@ dependencies:
   carousel_slider: ^5.0.0
   google_fonts: ^6.2.1
   text_scroll: ^0.2.0
+  cloud_firestore: ^5.6.0
+  url_launcher: ^6.3.1
+  firebase_core: ^3.9.0
 
 dev_dependencies:
   flutter_test:

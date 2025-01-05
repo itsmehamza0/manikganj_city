@@ -4,6 +4,7 @@ import 'package:manikganj_city/application/color.dart';
 import 'package:text_scroll/text_scroll.dart';
 import '../widgets/grid_item_widget.dart';
 import '../widgets/carousel_slider.dart';
+import 'doctor_page.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,23 +14,17 @@ class HomeScreen extends StatelessWidget {
     // List of online image URLs
     List<String> images = [
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSifk84PNoLETKdAEqML0UQWI1Y6reGrJd1ug&s',
-      // Replace with your online image URLs
       'https://i.ytimg.com/vi/ZoBhGafetWM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCa9fAnblU54iDatzC1jSSjkQMXew',
       'https://www.bssnews.net/assets/news_photos/2023/12/12/image-162816-1702360687.jpg',
     ];
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
-
         title: const Text("Manikganj City"),
         centerTitle: true,
         elevation: 2,
       ),
-
-
-
       drawer: Drawer(
         child: ListView(
           children: [
@@ -38,12 +33,14 @@ class HomeScreen extends StatelessWidget {
                 color: AppColors.appMainColor,
               ),
               child: Center(
-                  child: Text("Drawer Header",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700),
-                  )),
+                child: Text(
+                  "Drawer Header",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ],
         ),
@@ -52,61 +49,57 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Add the ImageCarousel widget here, passing the list of online image URLs
+            // ImageCarousel widget
             ImageCarousel(imageUrls: images),
-            // Carousel widget
             SizedBox(height: 10),
-
-            // Text Scroll code
+            // Text Scroll widget
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(10), // TextScroll-এর চারপাশে প্যাডিং
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                gradient: LinearGradient( // সুন্দর গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড
+                gradient: LinearGradient(
                   colors: [
-                    Colors.blue.shade100,  // হালকা নীল ব্যাকগ্রাউন্ড
-                    Colors.blue.shade200, // হালকা নীল
+                    Colors.blue.shade100,
+                    Colors.blue.shade200,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(10), // কোণের গোলাকারতা
+                borderRadius: BorderRadius.circular(10),
               ),
               child: TextScroll(
                 velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
-                'জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের। কিন্তু সবচেয়ে অসম্পূর্ণ হয়ে সে জন্মগ্রহণ করে। বাঘ ভালুক তার জীবনযাত্রার পনেরো- আনা মূলধন নিয়ে আসে প্রকৃতির মালখানা থেকে। জীবরঙ্গভূমিতে মানুষ এসে দেখা দেয় দুই শূন্য হাতে মুঠো বেঁধে।',
+                'জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের... জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের... জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের...',
                 style: GoogleFonts.notoSerifBengali(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black, // টেক্সট রঙ সাদা
+                  color: Colors.black,
                 ),
               ),
             ),
-
-
-
             SizedBox(height: 10),
-            // GridView to display the items in a grid
+            // GridView
             Expanded(
               child: GridView(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // Number of columns in the grid
-                  crossAxisSpacing: 16.0, // Horizontal spacing between items
-                  mainAxisSpacing: 16.0, // Vertical spacing between items
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
                 ),
                 children: [
-                  _buildGridItem('assets/images/doctor.png', "ডাক্তার"),
-                  _buildGridItem('assets/images/hospital.png', "হাসপাতাল"),
-                  _buildGridItem('assets/images/bus.png', "বাসের সময়সূচী"),
-                  _buildGridItem('assets/images/blood-test.png', "রক্ত"),
-                  _buildGridItem('assets/images/hotel.png', "হোটেল"),
-                  _buildGridItem('assets/images/policeman.png', "পুলিশ"),
-                  _buildGridItem('assets/images/robot.png', "ফায়ার সার্ভিস"),
-                  _buildGridItem('assets/images/trolley.png', "শপিং"),
-                  _buildGridItem('assets/images/idea.png', "বিদ্যুৎ অফিস"),
-                  _buildGridItem('assets/images/destination.png', "দর্শনীয় স্থান"),
-                  _buildGridItem('assets/images/mosque.png', "মাদরাসা"),
-                  _buildGridItem('assets/images/graduation-hat.png', "কলেজ"),
+                  _buildGridItem(context, 'assets/images/doctor.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/hospital.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/blood-test.png', "রক্ত",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/bus.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/destination.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/graduation-hat.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/hotel.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/idea.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/mosque.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/policeman.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/robot.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/trolley.png', "ডাক্তার",  DoctorPage()),
+                  // Add more items here...
                 ],
               ),
             ),
@@ -116,9 +109,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Method to build each grid item (image + title)
-  Widget _buildGridItem(String image, String title) {
+  // Updated _buildGridItem with navigation
+  Widget _buildGridItem(
+      BuildContext context, String image, String title, Widget targetPage) {
     return GridItemWidget(
-        image: image, title: title); // Pass imageUrl instead of icon
+      image: image,
+      title: title,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetPage),
+        );
+      },
+    );
   }
 }

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class GridItemWidget extends StatelessWidget {
-  final String image;
-  final String title;
+  final String image; // আইটেমের ইমেজ
+  final String title; // আইটেমের নাম
+  final VoidCallback onTap; // ট্যাপ করার জন্য কলব্যাক ফাংশন
 
-  const GridItemWidget({super.key, required this.image, required this.title});
+  const GridItemWidget({
+    super.key,
+    required this.image,
+    required this.title,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Handle navigation or actions
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -30,7 +34,7 @@ class GridItemWidget extends StatelessWidget {
           children: [
             Flexible(
               child: Image.asset(
-                image, // Local asset path
+                image,
                 width: 40.0,
                 height: 40.0,
                 fit: BoxFit.cover,
