@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "115219773024",
-    "project_id": "manikganjcity-7db69",
-    "storage_bucket": "manikganjcity-7db69.firebasestorage.app"
+    "project_number": "655312353347",
+    "project_id": "manikganjapp",
+    "storage_bucket": "manikganjapp.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:115219773024:android:aa69b5ea134e494937b505",
+        "mobilesdk_app_id": "1:655312353347:android:c27e586282fed827fd3cf6",
         "android_client_info": {
-          "package_name": "com.example.manikganj_city"
+          "package_name": "com.hamza.manikganjcity"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBlaInr6YYMLYPdLoXmTB9nN-bpUW74IjY"
+          "current_key": "AIzaSyB1IoRz2VFPIjFGB5ZWopJyj7xfJ6tujKI"
         }
       ],
       "services": {

@@ -5,18 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 class Mosque extends StatelessWidget {
   const Mosque({super.key});
 
-  // ফোন কল লঞ্চ ফাংশন
-  void _makePhoneCall(String phone, BuildContext context) async {
-    final phoneUrl = 'tel:$phone';
-    if (await canLaunch(phoneUrl)) {
-      await launch(phoneUrl);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ফোন কল শুরু করা সম্ভব হয়নি')),
-      );
-    }
-  }
-
   // গুগল ম্যাপসে লোকেশন ওপেন করার ফাংশন
   void _openMaps(String address, BuildContext context) async {
     final googleMapsUrl = 'https://www.google.com/maps/search/?q=$address';
@@ -63,32 +51,27 @@ class Mosque extends StatelessWidget {
               final mosque = mosqueDocs[index];
 
               return GestureDetector(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.white, Colors.white38],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(5, 5),
-                      ),
-                    ],
+                onTap: () => _openMaps(mosque['address'] ?? '', context),
+                child: Card(
+                  elevation: 5,
+                  margin: EdgeInsets.only(bottom: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  padding: EdgeInsets.only(bottom: 10),
-                  margin: EdgeInsets.only(bottom: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/images/mosques.jpg',  // Image from assets
-                        width: double.infinity,
-                        height: 220,
-                        fit: BoxFit.cover,
+                      ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                        ),
+                        child: Image.asset(
+                          'assets/images/mosques.jpg',
+                          width: double.infinity,
+                          height: 220,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       SizedBox(height: 8),
                       Text(
@@ -103,15 +86,6 @@ class Mosque extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'ফোন: ${mosque['phone'] ?? 'তথ্য নেই'}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 5),
-                      Text(
                         'ঠিকানা: ${mosque['address'] ?? 'তথ্য নেই'}',
                         style: TextStyle(
                           fontSize: 14,
@@ -120,18 +94,9 @@ class Mosque extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () => _makePhoneCall(mosque['phone'] ?? '', context),
-                            icon: Icon(Icons.phone, color: Colors.green.shade600),
-                          ),
-                          IconButton(
-                            onPressed: () => _openMaps(mosque['address'] ?? '', context),
-                            icon: Icon(Icons.map, color: Colors.blue.shade300),
-                          ),
-                        ],
+                      IconButton(
+                        onPressed: () => _openMaps(mosque['address'] ?? '', context),
+                        icon: Icon(Icons.map, color: Colors.blue.shade300),
                       ),
                     ],
                   ),
@@ -147,7 +112,6 @@ class Mosque extends StatelessWidget {
             context: context,
             builder: (context) {
               final nameController = TextEditingController();
-              final phoneController = TextEditingController();
               final addressController = TextEditingController();
 
               return AlertDialog(
@@ -165,13 +129,6 @@ class Mosque extends StatelessWidget {
                               ? 'ফিল্ডটি পূরণ করুন'
                               : null,
                         ),
-                      ),
-                      TextField(
-                        controller: phoneController,
-                        decoration: InputDecoration(
-                          labelText: 'ফোন',
-                        ),
-                        keyboardType: TextInputType.phone,
                       ),
                       TextField(
                         controller: addressController,
@@ -192,7 +149,6 @@ class Mosque extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       if (nameController.text.isEmpty ||
-                          phoneController.text.isEmpty ||
                           addressController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -205,7 +161,6 @@ class Mosque extends StatelessWidget {
 
                       FirebaseFirestore.instance.collection('mosques').add({
                         'name': nameController.text,
-                        'phone': phoneController.text,
                         'address': addressController.text,
                         'isApproved': false, // Initially false
                       });
@@ -228,7 +183,7 @@ class Mosque extends StatelessWidget {
           );
         },
         backgroundColor: Colors.teal.shade100,
-        child: Icon(Icons.add),
+        child: Icon(Icons.add,color: Colors.black,),
       ),
     );
   }

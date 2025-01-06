@@ -41,6 +41,9 @@ dependencies:
   cloud_firestore: ^5.6.0
   url_launcher: ^6.3.1
   firebase_core: ^3.9.0
+  change_app_package_name: ^1.4.0
+  intl: ^0.20.1
+  onesignal_flutter: ^5.2.9
 
 dev_dependencies:
   flutter_test:

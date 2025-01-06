@@ -15,6 +15,7 @@ import 'history_screen.dart';
 import 'hospital_screen.dart';
 import 'hotel_screen.dart';
 import 'mosque_screen.dart';
+import 'notice_screen.dart';
 import 'police_screen.dart';
 import 'tourist_screen.dart';
 
@@ -36,6 +37,19 @@ class HomeScreen extends StatelessWidget {
         title: const Text("Manikganj City"),
         centerTitle: true,
         elevation: 2,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active_outlined),
+            onPressed: () {
+              // এখানে ক্লিক করলে Notice পেইজে নেভিগেট করবে
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Notice()),
+              );
+            },
+          ),
+        ],
+
       ),
       drawer: Drawer(
         child: ListView(
