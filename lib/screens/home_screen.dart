@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:manikganj_city/application/color.dart';
-import 'package:text_scroll/text_scroll.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/grid_item_widget.dart';
-import '../widgets/carousel_slider.dart';
 import 'blood_screen.dart';
 import 'bus_screen.dart';
 import 'doctor_screen.dart';
 import 'educational_screen.dart';
 import 'electricity_screen.dart';
 import 'fireservice_screen.dart';
+import 'helplines_screen.dart';
 import 'history_screen.dart';
 import 'hospital_screen.dart';
 import 'hotel_screen.dart';
@@ -18,19 +17,13 @@ import 'mosque_screen.dart';
 import 'notice_screen.dart';
 import 'police_screen.dart';
 import 'tourist_screen.dart';
+import 'veterinary_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // List of online image URLs
-    List<String> images = [
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSifk84PNoLETKdAEqML0UQWI1Y6reGrJd1ug&s',
-      'https://i.ytimg.com/vi/ZoBhGafetWM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCa9fAnblU54iDatzC1jSSjkQMXew',
-      'https://www.bssnews.net/assets/news_photos/2023/12/12/image-162816-1702360687.jpg',
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -41,7 +34,6 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications_active_outlined),
             onPressed: () {
-              // এখানে ক্লিক করলে Notice পেইজে নেভিগেট করবে
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const Notice()),
@@ -49,14 +41,13 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
-
       ),
       drawer: Drawer(
         child: ListView(
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: AppColors.appMainColor,
+                color: Colors.blue,
               ),
               child: Center(
                 child: Text(
@@ -75,44 +66,77 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // ImageCarousel widget
-            ImageCarousel(imageUrls: images),
-            SizedBox(height: 10),
-            // Text Scroll widget
+            // Dynamic Image Carousel
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('carouselImages').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error loading images!'));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No images available.'));
+                }
+
+                List<String> imageUrls = snapshot.data!.docs.map((doc) {
+                  return doc['imageUrl'] as String;
+                }).toList();
+
+                return CarouselSlider.builder(
+                  itemCount: imageUrls.length,
+                  itemBuilder: (context, index, realIndex) {
+                    return Image.network(
+                      imageUrls[index],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    );
+                  },
+                  options: CarouselOptions(
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    aspectRatio: 16 / 9,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            // Scrolling Text
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.shade100,
-                    Colors.blue.shade200,
-                  ],
+                  colors: [Colors.blue.shade100, Colors.blue.shade200],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('scrollingText').doc('textDocumentID').get(),
+                future: FirebaseFirestore.instance
+                    .collection('scrollingText')
+                    .doc('textDocumentID')
+                    .get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
-                    return Center(child: Text('Something went wrong!'));
+                    return Center(child: Text('Error loading text!'));
                   }
 
                   if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return Center(child: Text('No text found.'));
+                    return Center(child: Text('No text available.'));
                   }
 
-                  // Firebase থেকে টেক্সট নিয়ে আসা
                   String text = snapshot.data!['text'];
 
-                  return TextScroll(
-                    velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
+                  return Text(
                     text,
                     style: GoogleFonts.notoSerifBengali(
                       fontSize: 18,
@@ -123,7 +147,7 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // GridView
             Expanded(
               child: GridView(
@@ -133,19 +157,20 @@ class HomeScreen extends StatelessWidget {
                   mainAxisSpacing: 16.0,
                 ),
                 children: [
-                  _buildGridItem(context, 'assets/images/map.png', "ইতিহাস ও সংস্কৃতি",  HistoryCulture()),
-                  _buildGridItem(context, 'assets/images/doctor.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/hospital.png', "হাসঁসপাতাল",  HospitalPage()),
-                  _buildGridItem(context, 'assets/images/blood-test.png', "রক্ত",  BloodDonor()),
-                  _buildGridItem(context, 'assets/images/bus.png', "বাসের সময়সূচি",  BusSchedule()),
-                  _buildGridItem(context, 'assets/images/destination.png', "দর্শনীয় স্থান",  TouristSpots()),
-                  _buildGridItem(context, 'assets/images/graduation-hat.png', "শিক্ষা প্রতিষ্ঠান",  EducationalInstitutes()),
-                  _buildGridItem(context, 'assets/images/hotel.png', "হোটেল",  Hotel()),
-                  _buildGridItem(context, 'assets/images/idea.png', "বিদ্যুৎ অফিস",  ElectricityOffice()),
-                  _buildGridItem(context, 'assets/images/mosque.png', "মসজিদ",  Mosque()),
-                  _buildGridItem(context, 'assets/images/police-station.png', "পুলিশ",  Police()),
-                  _buildGridItem(context, 'assets/images/robot.png', "ফায়ার সার্ভিস",  FireService()),
-                  // Add more items here...
+                  _buildGridItem(context, 'assets/images/map.png', "ইতিহাস ও সংস্কৃতি", HistoryCulture()),
+                  _buildGridItem(context, 'assets/images/doctor.png', "ডাক্তার", DoctorPage()),
+                  _buildGridItem(context, 'assets/images/hospital.png', "হাসপাতাল", HospitalPage()),
+                  _buildGridItem(context, 'assets/images/blood-test.png', "রক্ত", BloodDonor()),
+                  _buildGridItem(context, 'assets/images/bus.png', "বাসের সময়সূচি", BusSchedule()),
+                  _buildGridItem(context, 'assets/images/destination.png', "দর্শনীয় স্থান", TouristSpots()),
+                  _buildGridItem(context, 'assets/images/graduation-hat.png', "শিক্ষা প্রতিষ্ঠান", EducationalInstitutes()),
+                  _buildGridItem(context, 'assets/images/hotel.png', "হোটেল", Hotel()),
+                  _buildGridItem(context, 'assets/images/idea.png', "বিদ্যুৎ অফিস", ElectricityOffice()),
+                  _buildGridItem(context, 'assets/images/mosque.png', "মসজিদ", Mosque()),
+                  _buildGridItem(context, 'assets/images/police-station.png', "পুলিশ", Police()),
+                  _buildGridItem(context, 'assets/images/robot.png', "ফায়ার সার্ভিস", FireService()),
+                  _buildGridItem(context, 'assets/images/veterinarian.png', "পশু হাসপাতাল", Veterinary()),
+                  _buildGridItem(context, 'assets/images/helpline.png', "জরুরি হেল্পলাইন", Helplines()),
                 ],
               ),
             ),
@@ -155,7 +180,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Updated _buildGridItem with navigation
+  // Grid Item Builder
   Widget _buildGridItem(BuildContext context, String image, String title, Widget targetPage) {
     return GridItemWidget(
       image: image,
