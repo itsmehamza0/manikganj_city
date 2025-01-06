@@ -14,7 +14,10 @@ class DoctorPage extends StatelessWidget {
         backgroundColor: Colors.teal,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('doctors').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('doctors')
+            .where('isApproved', isEqualTo: true) // Show only approved doctors
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -43,15 +46,15 @@ class DoctorPage extends StatelessWidget {
               backgroundColors[index % backgroundColors.length]; // Cycle colors
 
               return Container(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: Offset(5, 10),
                     ),
                   ],
                 ),
@@ -61,9 +64,9 @@ class DoctorPage extends StatelessWidget {
                     children: [
                       // Static doctor image
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(0),
                         child: Image.asset(
-                          'assets/images/doctor.png',
+                          'assets/images/medical-team.png',
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
@@ -83,7 +86,7 @@ class DoctorPage extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 5),
                             Text(
                               'বিশেষজ্ঞতা: ${doctor['specialization'] ?? 'তথ্য নেই'}',
                               style: TextStyle(
@@ -91,7 +94,7 @@ class DoctorPage extends StatelessWidget {
                                 color: Colors.black54,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 2),
                             Text(
                               'ফোন: ${doctor['phone'] ?? 'তথ্য নেই'}',
                               style: TextStyle(
@@ -119,11 +122,49 @@ class DoctorPage extends StatelessWidget {
                         onPressed: () async {
                           final phone = doctor['phone'];
                           if (phone != null) {
-                            final Uri telUri = Uri(scheme: 'tel', path: phone);
-                            if (await canLaunch(telUri.toString())) {
-                              await launch(telUri.toString());
-                            } else {
-                              throw 'Could not launch $telUri';
+                            final Uri telUri = Uri.parse('tel:$phone');
+                            try {
+                              if (await canLaunch(telUri.toString())) {
+                                await launch(telUri.toString());
+                              } else {
+                                throw 'Could not launch $telUri';
+                              }
+                            } catch (e) {
+                              print('Error: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('ফোন কল শুরু করা সম্ভব হয়নি'),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      // Map button (Google Maps)
+                      IconButton(
+                        icon: Icon(
+                          Icons.map,
+                          color: Colors.teal,
+                          size: 30,
+                        ),
+                        onPressed: () async {
+                          final address = doctor['address'];
+                          if (address != null) {
+                            final String googleMapsUrl =
+                                'https://www.google.com/maps/search/?q=${Uri.encodeComponent(address)}';
+                            try {
+                              if (await canLaunch(googleMapsUrl)) {
+                                await launch(googleMapsUrl);
+                              } else {
+                                throw 'Could not launch $googleMapsUrl';
+                              }
+                            } catch (e) {
+                              print('Error: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('গুগল ম্যাপে ঠিকানা খোলার সময় সমস্যা হয়েছে'),
+                                ),
+                              );
                             }
                           }
                         },
@@ -208,9 +249,18 @@ class DoctorPage extends StatelessWidget {
                         'specialization': specializationController.text,
                         'phone': phoneController.text,
                         'address': addressController.text,
+                        'isApproved': false, // Initially false
                       });
 
                       Navigator.of(context).pop();
+
+                      // Show a success message after adding
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('আপনার ডাক্তারের তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।'),
+                          backgroundColor: Colors.red.shade300,
+                        ),
+                      );
                     },
                     child: Text('যোগ করুন'),
                   ),
@@ -222,7 +272,6 @@ class DoctorPage extends StatelessWidget {
         backgroundColor: Colors.teal,
         child: Icon(Icons.add),
       ),
-
     );
   }
 }

@@ -11,7 +11,7 @@ class ImageCarousel extends StatelessWidget {
     return CarouselSlider(
 
       options: CarouselOptions(
-        height: 200.0,
+        height: 150.0,
         enlargeCenterPage: true,
         autoPlay: true, // Enable autoplay
         aspectRatio: 16/9, // Adjust the aspect ratio

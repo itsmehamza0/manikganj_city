@@ -2,9 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manikganj_city/application/color.dart';
 import 'package:text_scroll/text_scroll.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/grid_item_widget.dart';
 import '../widgets/carousel_slider.dart';
-import 'doctor_page.dart';
+import 'blood_screen.dart';
+import 'bus_screen.dart';
+import 'doctor_screen.dart';
+import 'educational_screen.dart';
+import 'electricity_screen.dart';
+import 'fireservice_screen.dart';
+import 'history_screen.dart';
+import 'hospital_screen.dart';
+import 'hotel_screen.dart';
+import 'mosque_screen.dart';
+import 'police_screen.dart';
+import 'tourist_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -67,14 +79,34 @@ class HomeScreen extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: TextScroll(
-                velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
-                'জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের... জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের... জীবের মধ্যে সবচেয়ে সম্পূর্ণতা মানুষের...',
-                style: GoogleFonts.notoSerifBengali(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
+              child: FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('scrollingText').doc('textDocumentID').get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Something went wrong!'));
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Center(child: Text('No text found.'));
+                  }
+
+                  // Firebase থেকে টেক্সট নিয়ে আসা
+                  String text = snapshot.data!['text'];
+
+                  return TextScroll(
+                    velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
+                    text,
+                    style: GoogleFonts.notoSerifBengali(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(height: 10),
@@ -87,18 +119,18 @@ class HomeScreen extends StatelessWidget {
                   mainAxisSpacing: 16.0,
                 ),
                 children: [
+                  _buildGridItem(context, 'assets/images/map.png', "ইতিহাস ও সংস্কৃতি",  HistoryCulture()),
                   _buildGridItem(context, 'assets/images/doctor.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/hospital.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/blood-test.png', "রক্ত",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/bus.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/destination.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/graduation-hat.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/hotel.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/idea.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/mosque.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/policeman.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/robot.png', "ডাক্তার",  DoctorPage()),
-                  _buildGridItem(context, 'assets/images/trolley.png', "ডাক্তার",  DoctorPage()),
+                  _buildGridItem(context, 'assets/images/hospital.png', "হাসঁসপাতাল",  HospitalPage()),
+                  _buildGridItem(context, 'assets/images/blood-test.png', "রক্ত",  BloodDonor()),
+                  _buildGridItem(context, 'assets/images/bus.png', "বাসের সময়সূচি",  BusSchedule()),
+                  _buildGridItem(context, 'assets/images/destination.png', "দর্শনীয় স্থান",  TouristSpots()),
+                  _buildGridItem(context, 'assets/images/graduation-hat.png', "শিক্ষা প্রতিষ্ঠান",  EducationalInstitutes()),
+                  _buildGridItem(context, 'assets/images/hotel.png', "হোটেল",  Hotel()),
+                  _buildGridItem(context, 'assets/images/idea.png', "বিদ্যুৎ অফিস",  ElectricityOffice()),
+                  _buildGridItem(context, 'assets/images/mosque.png', "মসজিদ",  Mosque()),
+                  _buildGridItem(context, 'assets/images/police-station.png', "পুলিশ",  Police()),
+                  _buildGridItem(context, 'assets/images/robot.png', "ফায়ার সার্ভিস",  FireService()),
                   // Add more items here...
                 ],
               ),
@@ -110,8 +142,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Updated _buildGridItem with navigation
-  Widget _buildGridItem(
-      BuildContext context, String image, String title, Widget targetPage) {
+  Widget _buildGridItem(BuildContext context, String image, String title, Widget targetPage) {
     return GridItemWidget(
       image: image,
       title: title,
