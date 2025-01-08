@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart'; // Clipboard library for copy functionality
 
 class Veterinary extends StatelessWidget {
   const Veterinary({super.key});
 
-  void _makeCall(String phone) async {
-    final Uri url = Uri.parse('tel:$phone');
-    if (!await launchUrl(url)) {
-      throw 'Could not call $phone';
-    }
+  // ফোন নম্বর কপি করার ফাংশন
+  void _copyToClipboard(String phone, BuildContext context) {
+    Clipboard.setData(ClipboardData(text: phone)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('ফোন নম্বর কপি করা হয়েছে: $phone')),
+      );
+    });
   }
 
   @override
@@ -58,20 +61,16 @@ class Veterinary extends StatelessWidget {
                       Text('ফোন: ${service['phone'] ?? 'তথ্য নেই'}'),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.phone, color: Colors.teal),
-                    onPressed: () {
-                      if (service['phone'] != null && service['phone'] != '') {
-                        _makeCall(service['phone']);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('ফোন নম্বর পাওয়া যায়নি।'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.copy, color: Colors.teal),
+                        onPressed: () {
+                          _copyToClipboard(service['phone'] ?? '', context);
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );

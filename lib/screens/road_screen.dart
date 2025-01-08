@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart'; // Clipboard এর জন্য
 
-class BusSchedule extends StatelessWidget {
-  const BusSchedule({super.key});
+class RoadService extends StatelessWidget {
+  const RoadService({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('বাসের সময়সূচী'),
+        title: Text('রোড সার্ভিস'),
         centerTitle: true,
         backgroundColor: Colors.indigo,
       ),
@@ -59,32 +59,30 @@ class BusSchedule extends StatelessWidget {
                     child: Icon(Icons.directions_bus, color: Colors.indigo),
                   ),
                   title: Text(
-                    bus['route'] ?? 'রুট তথ্য নেই',
+                    bus['busName'] ?? 'বাসের নাম নেই',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 5),
-                      Text('সময়: ${bus['time'] ?? 'তথ্য নেই'}', style: TextStyle(fontSize: 16)),
+                      Text('রুট: ${bus['route'] ?? 'তথ্য নেই'}', style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 3),
+                      Text('সময়: ${bus['time'] ?? 'তথ্য নেই'}', style: TextStyle(fontSize: 15)),
                       SizedBox(height: 3),
                       Text('ফোন: ${bus['phone'] ?? 'তথ্য নেই'}', style: TextStyle(fontSize: 15)),
                     ],
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.call, color: Colors.green, size: 28),
-                    onPressed: () async {
-                      final phone = bus['phone'];
-                      if (phone != null) {
-                        final Uri telUri = Uri.parse('tel:$phone');
-                        if (await canLaunch(telUri.toString())) {
-                          await launch(telUri.toString());
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('ফোন কল শুরু করা সম্ভব হয়নি')),
-                          );
-                        }
-                      }
+                    icon: Icon(Icons.copy, color: Colors.green, size: 28),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: bus['phone']));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ফোন নম্বর কপি করা হয়েছে'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -98,6 +96,7 @@ class BusSchedule extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
+              final busNameController = TextEditingController();
               final routeController = TextEditingController();
               final timeController = TextEditingController();
               final phoneController = TextEditingController();
@@ -109,6 +108,14 @@ class BusSchedule extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      TextField(
+                        controller: busNameController,
+                        decoration: InputDecoration(
+                          labelText: 'বাসের নাম',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: routeController,
                         decoration: InputDecoration(
@@ -147,7 +154,8 @@ class BusSchedule extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
-                      if (routeController.text.isEmpty ||
+                      if (busNameController.text.isEmpty ||
+                          routeController.text.isEmpty ||
                           timeController.text.isEmpty ||
                           phoneController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -160,6 +168,7 @@ class BusSchedule extends StatelessWidget {
                       }
 
                       FirebaseFirestore.instance.collection('bus_schedule').add({
+                        'busName': busNameController.text,
                         'route': routeController.text,
                         'time': timeController.text,
                         'phone': phoneController.text,
@@ -174,7 +183,7 @@ class BusSchedule extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text('যোগ করুন'),
+                    child: Text('যোগ করুন',style: TextStyle(color: Colors.white),),
                   ),
                 ],
               );
@@ -182,7 +191,7 @@ class BusSchedule extends StatelessWidget {
           );
         },
         backgroundColor: Colors.indigo,
-        child: Icon(Icons.add,color: Colors.white,),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

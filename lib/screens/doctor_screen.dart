@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart'; // Clipboard import
 
 class DoctorPage extends StatelessWidget {
   const DoctorPage({super.key});
@@ -112,38 +113,37 @@ class DoctorPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Call button
+                      // Copy button
                       IconButton(
                         icon: Icon(
-                          Icons.call,
+                          Icons.copy, // Copy icon
                           color: Colors.teal,
                           size: 30,
                         ),
-                        onPressed: () async {
+                        onPressed: () {
                           final phone = doctor['phone'];
                           if (phone != null) {
-                            final Uri telUri = Uri.parse('tel:$phone');
-                            try {
-                              if (await canLaunch(telUri.toString())) {
-                                await launch(telUri.toString());
-                              } else {
-                                throw 'Could not launch $telUri';
-                              }
-                            } catch (e) {
-                              print('Error: $e');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('ফোন কল শুরু করা সম্ভব হয়নি'),
-                                ),
-                              );
-                            }
+                            Clipboard.setData(ClipboardData(text: phone)); // Copy to clipboard
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('ফোন নম্বর কপি করা হয়েছে: $phone'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('ফোন নম্বর পাওয়া যায়নি।'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
                           }
                         },
                       ),
                       // Map button (Google Maps)
                       IconButton(
                         icon: Icon(
-                          Icons.map,
+                          Icons.location_on,
                           color: Colors.teal,
                           size: 30,
                         ),
@@ -188,7 +188,8 @@ class DoctorPage extends StatelessWidget {
               final addressController = TextEditingController();
 
               return AlertDialog(
-                title: Text('নতুন ডাক্তার যোগ করুন'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: Text('নতুন ডাক্তার যোগ করুন', textAlign: TextAlign.center),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -197,26 +198,32 @@ class DoctorPage extends StatelessWidget {
                         controller: nameController,
                         decoration: InputDecoration(
                           labelText: 'নাম',
-                          errorText: nameController.text.isEmpty ? 'ফিল্ডটি পূরণ করুন' : null,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: specializationController,
                         decoration: InputDecoration(
                           labelText: 'বিশেষজ্ঞতা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: phoneController,
                         decoration: InputDecoration(
                           labelText: 'ফোন',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         keyboardType: TextInputType.phone,
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: addressController,
                         decoration: InputDecoration(
                           labelText: 'ঠিকানা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],
@@ -224,12 +231,14 @@ class DoctorPage extends StatelessWidget {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('বাতিল'),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('বাতিল', style: TextStyle(color: Colors.red)),
                   ),
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                     onPressed: () {
                       if (nameController.text.isEmpty ||
                           specializationController.text.isEmpty ||
@@ -249,20 +258,18 @@ class DoctorPage extends StatelessWidget {
                         'specialization': specializationController.text,
                         'phone': phoneController.text,
                         'address': addressController.text,
-                        'isApproved': false, // Initially false
+                        'isApproved': true,
                       });
 
                       Navigator.of(context).pop();
-
-                      // Show a success message after adding
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('আপনার ডাক্তারের তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।'),
-                          backgroundColor: Colors.red.shade300,
+                          backgroundColor: Colors.green,
                         ),
                       );
                     },
-                    child: Text('যোগ করুন'),
+                    child: Text('যোগ করুন',style: TextStyle(color: Colors.white),),
                   ),
                 ],
               );
@@ -270,7 +277,7 @@ class DoctorPage extends StatelessWidget {
           );
         },
         backgroundColor: Colors.teal,
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

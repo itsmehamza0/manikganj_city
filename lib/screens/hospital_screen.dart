@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart'; // Clipboard ব্যবহারের জন্য
 
 class HospitalPage extends StatelessWidget {
   const HospitalPage({super.key});
 
-  // ফোন কল লঞ্চ ফাংশন
-  void _makePhoneCall(String phone, BuildContext context) async {
-    final phoneUrl = 'tel:$phone';
-    if (await canLaunch(phoneUrl)) {
-      await launch(phoneUrl);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ফোন কল শুরু করা সম্ভব হয়নি')),
-      );
-    }
+  // ফোন নম্বর কপি করার ফাংশন
+  void _copyToClipboard(String text, BuildContext context) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('ফোন নম্বর কপি করা হয়েছে')),
+    );
   }
 
   // গুগল ম্যাপসে লোকেশন ওপেন করার ফাংশন
@@ -124,12 +121,12 @@ class HospitalPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            onPressed: () => _makePhoneCall(hospital['phone'] ?? '', context),
-                            icon: Icon(Icons.phone, color: Colors.green.shade600),
+                            onPressed: () => _copyToClipboard(hospital['phone'] ?? '', context),
+                            icon: Icon(Icons.copy, color: Colors.orange.shade600),
                           ),
                           IconButton(
                             onPressed: () => _openMaps(hospital['address'] ?? '', context),
-                            icon: Icon(Icons.map, color: Colors.blue.shade300),
+                            icon: Icon(Icons.location_on, color: Colors.blue.shade300),
                           ),
                         ],
                       ),
@@ -151,9 +148,12 @@ class HospitalPage extends StatelessWidget {
               final addressController = TextEditingController();
 
               return AlertDialog(
-                title: Text('নতুন হাসপাতাল যোগ করুন',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: Text(
+                  'নতুন হাসপাতাল যোগ করুন',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -162,22 +162,24 @@ class HospitalPage extends StatelessWidget {
                         controller: nameController,
                         decoration: InputDecoration(
                           labelText: 'হাসপাতালের নাম',
-                          errorText: nameController.text.isEmpty
-                              ? 'ফিল্ডটি পূরণ করুন'
-                              : null,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: phoneController,
                         decoration: InputDecoration(
                           labelText: 'ফোন',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         keyboardType: TextInputType.phone,
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: addressController,
                         decoration: InputDecoration(
                           labelText: 'ঠিকানা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],
@@ -185,12 +187,14 @@ class HospitalPage extends StatelessWidget {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('বাতিল', style: TextStyle(fontSize: 16)),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('বাতিল', style: TextStyle(fontSize: 16, color: Colors.red)),
                   ),
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                     onPressed: () {
                       if (nameController.text.isEmpty ||
                           phoneController.text.isEmpty ||
@@ -212,25 +216,26 @@ class HospitalPage extends StatelessWidget {
                       });
 
                       Navigator.of(context).pop();
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'আপনার হাসপাতালের তথ্য সফলভাবে যুক্ত হয়েছে। আমরা যাচাই করার পর এটি শীঘ্রই আপডেট হবে।'),
+                            'আপনার হাসপাতালের তথ্য সফলভাবে যুক্ত হয়েছে। আমরা যাচাই করার পর এটি শীঘ্রই আপডেট হবে।',
+                          ),
                           backgroundColor: Colors.green,
                         ),
                       );
                     },
-                    child: Text('যোগ করুন', style: TextStyle(fontSize: 16)),
+                    child: Text('যোগ করুন',style: TextStyle(color: Colors.white),),
                   ),
                 ],
               );
             },
           );
         },
-        backgroundColor: Colors.purple.shade100,
-        child: Icon(Icons.add),
+        backgroundColor: Colors.purple.shade600,
+        child: Icon(Icons.add, color: Colors.white),
       ),
+
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EducationalInstitutes extends StatefulWidget {
@@ -17,6 +18,16 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
     if (!await launchUrl(url)) {
       throw 'Could not launch $url';
     }
+  }
+
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('ফোন নম্বর কপি হয়েছে!'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   @override
@@ -88,30 +99,59 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'শ্রেণী/বিভাগ: ${institute['category'] ?? 'তথ্য নেই'}',
+                              'বিভাগ: ${institute['category'] ?? 'তথ্য নেই'}',
                               style: const TextStyle(
                                 fontSize: 15,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'ফোন: ${institute['phone'] ?? 'তথ্য নেই'}',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.blue,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          if (institute['location'] != null &&
-                              institute['location'] != '') {
-                            _openMap(institute['location']);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('ঠিকানা পাওয়া যায়নি।'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.location_on, color: Colors.green),
+                      Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              if (institute['location'] != null &&
+                                  institute['location'] != '') {
+                                _openMap(institute['location']);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('ঠিকানা পাওয়া যায়নি।'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.location_on, color: Colors.red),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              if (institute['phone'] != null && institute['phone'] != '') {
+                                _copyToClipboard(institute['phone']);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('ফোন নম্বর পাওয়া যায়নি।'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.copy, color: Colors.green),
+                          ),
+
+                        ],
                       ),
                     ],
                   ),
@@ -128,30 +168,50 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
             builder: (context) {
               final nameController = TextEditingController();
               final locationController = TextEditingController();
+              final phoneController = TextEditingController();
+              String? selectedCategory;
 
               return AlertDialog(
-                title: const Text('নতুন শিক্ষা প্রতিষ্ঠান যোগ করুন'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: const Text(
+                  'নতুন শিক্ষা প্রতিষ্ঠান যোগ করুন',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'নাম',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: locationController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'ঠিকানা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
-                      // ড্রপডাউন সিস্টেম
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          labelText: 'ফোন',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      SizedBox(height: 10),
                       DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: const InputDecoration(
-                          labelText: 'শ্রেণী/বিভাগ',
+                        value: selectedCategory,
+                        decoration: InputDecoration(
+                          labelText: 'বিভাগ',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         items: ['কলেজ', 'স্কুল', 'মাদ্রাসা']
                             .map((category) => DropdownMenuItem<String>(
@@ -160,10 +220,10 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
                         ))
                             .toList(),
                         onChanged: (newCategory) {
-                          setState(() {
-                            _selectedCategory = newCategory;
-                          });
+                          selectedCategory = newCategory;
                         },
+                        validator: (value) =>
+                        value == null ? 'বিভাগ নির্বাচন আবশ্যক' : null,
                       ),
                     ],
                   ),
@@ -173,13 +233,21 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text('বাতিল'),
+                    child: const Text(
+                      'বাতিল',
+                      style: TextStyle(fontSize: 16, color: Colors.red),
+                    ),
                   ),
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                     onPressed: () {
                       if (nameController.text.isEmpty ||
                           locationController.text.isEmpty ||
-                          _selectedCategory == null) {
+                          phoneController.text.isEmpty ||
+                          selectedCategory == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('সব ফিল্ড পূরণ করা আবশ্যক!'),
@@ -189,12 +257,11 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
                         return;
                       }
 
-                      FirebaseFirestore.instance
-                          .collection('educational_institutes')
-                          .add({
+                      FirebaseFirestore.instance.collection('educational_institutes').add({
                         'name': nameController.text,
                         'location': locationController.text,
-                        'category': _selectedCategory,
+                        'phone': phoneController.text,
+                        'category': selectedCategory,
                         'isApproved': false, // অনুমোদন পেন্ডিং
                       });
 
@@ -208,7 +275,10 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
                         ),
                       );
                     },
-                    child: const Text('যোগ করুন'),
+                    child: const Text(
+                      'যোগ করুন',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ],
               );
@@ -218,6 +288,7 @@ class _EducationalInstitutesPageState extends State<EducationalInstitutes> {
         backgroundColor: Colors.green,
         child: const Icon(Icons.add, color: Colors.white),
       ),
+
     );
   }
 }

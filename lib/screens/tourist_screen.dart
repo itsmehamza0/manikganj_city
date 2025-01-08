@@ -123,7 +123,12 @@ class TouristSpots extends StatelessWidget {
               final descriptionController = TextEditingController();
 
               return AlertDialog(
-                title: Text('নতুন স্থান যোগ করুন'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: Text(
+                  'নতুন স্থান যোগ করুন',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -132,18 +137,23 @@ class TouristSpots extends StatelessWidget {
                         controller: nameController,
                         decoration: InputDecoration(
                           labelText: 'নাম',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: locationController,
                         decoration: InputDecoration(
                           labelText: 'ঠিকানা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
+                      SizedBox(height: 10),
                       TextField(
                         controller: descriptionController,
                         decoration: InputDecoration(
                           labelText: 'বর্ণনা',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         maxLines: 4,
                       ),
@@ -152,12 +162,14 @@ class TouristSpots extends StatelessWidget {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('বাতিল'),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('বাতিল', style: TextStyle(fontSize: 16, color: Colors.red)),
                   ),
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                     onPressed: () {
                       if (nameController.text.isEmpty ||
                           locationController.text.isEmpty ||
@@ -179,16 +191,16 @@ class TouristSpots extends StatelessWidget {
                       });
 
                       Navigator.of(context).pop();
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।'),
+                            'তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।',
+                          ),
                           backgroundColor: Colors.green.shade300,
                         ),
                       );
                     },
-                    child: Text('যোগ করুন'),
+                    child: Text('যোগ করুন', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               );
@@ -196,8 +208,9 @@ class TouristSpots extends StatelessWidget {
           );
         },
         backgroundColor: Colors.green,
-        child: Icon(Icons.add,color: Colors.white,),
+        child: Icon(Icons.add, color: Colors.white),
       ),
+
     );
   }
 }

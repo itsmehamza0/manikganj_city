@@ -96,7 +96,7 @@ class Mosque extends StatelessWidget {
                       SizedBox(height: 10),
                       IconButton(
                         onPressed: () => _openMaps(mosque['address'] ?? '', context),
-                        icon: Icon(Icons.map, color: Colors.blue.shade300),
+                        icon: Icon(Icons.location_on, color: Colors.blue.shade300),
                       ),
                     ],
                   ),
@@ -115,41 +115,62 @@ class Mosque extends StatelessWidget {
               final addressController = TextEditingController();
 
               return AlertDialog(
-                title: Text('নতুন মসজিদ যোগ করুন',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                title: Text(
+                  'নতুন মসজিদ যোগ করুন',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Name Field
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
                           labelText: 'মসজিদের নাম',
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           errorText: nameController.text.isEmpty
                               ? 'ফিল্ডটি পূরণ করুন'
                               : null,
                         ),
                       ),
+                      SizedBox(height: 12),
+                      // Address Field
                       TextField(
                         controller: addressController,
                         decoration: InputDecoration(
                           labelText: 'ঠিকানা',
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
                 actions: [
+                  // Cancel Button
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('বাতিল', style: TextStyle(fontSize: 16)),
+                    child: Text(
+                      'বাতিল',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
+                  // Submit Button
                   TextButton(
                     onPressed: () {
-                      if (nameController.text.isEmpty ||
-                          addressController.text.isEmpty) {
+                      if (nameController.text.isEmpty || addressController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('সব ফিল্ড পূরণ করা আবশ্যক!'),
@@ -170,12 +191,16 @@ class Mosque extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'আপনার মসজিদের তথ্য সফলভাবে যুক্ত হয়েছে। আমরা যাচাই করার পর এটি শীঘ্রই আপডেট হবে।'),
+                            'আপনার মসজিদের তথ্য সফলভাবে যুক্ত হয়েছে। আমরা যাচাই করার পর এটি শীঘ্রই আপডেট হবে।',
+                          ),
                           backgroundColor: Colors.green,
                         ),
                       );
                     },
-                    child: Text('যোগ করুন', style: TextStyle(fontSize: 16)),
+                    child: Text(
+                      'যোগ করুন',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ],
               );
@@ -183,8 +208,12 @@ class Mosque extends StatelessWidget {
           );
         },
         backgroundColor: Colors.teal.shade100,
-        child: Icon(Icons.add,color: Colors.black,),
+        child: Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
       ),
+
     );
   }
 }

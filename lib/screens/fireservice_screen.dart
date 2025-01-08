@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart'; // Clipboard ব্যবহার করার জন্য
 
 class FireService extends StatelessWidget {
   const FireService({super.key});
 
-  // ফোন কল লঞ্চ ফাংশন
-  void _makePhoneCall(String phone, BuildContext context) async {
-    final phoneUrl = 'tel:$phone';
-    if (await canLaunch(phoneUrl)) {
-      await launch(phoneUrl);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ফোন কল শুরু করা সম্ভব হয়নি')),
-      );
-    }
+  // ক্লিপবোর্ডে ফোন নম্বর কপি ফাংশন
+  void _copyToClipboard(String text, BuildContext context) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('ফোন নম্বর কপি করা হয়েছে: $text')),
+    );
   }
 
   @override
@@ -98,9 +94,8 @@ class FireService extends StatelessWidget {
                     ],
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.phone, color: Colors.green),
-                    onPressed: () =>
-                        _makePhoneCall(fireStation['phone'] ?? '', context),
+                    icon: Icon(Icons.copy, color: Colors.blue),
+                    onPressed: () => _copyToClipboard(fireStation['phone'] ?? 'তথ্য নেই', context),
                   ),
                 ),
               );

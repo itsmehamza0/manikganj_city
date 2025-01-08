@@ -1,32 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 class Police extends StatelessWidget {
   const Police({super.key});
 
-  // ফোন কল লঞ্চ ফাংশন
-  void _makePhoneCall(String phone, BuildContext context) async {
-    final phoneUrl = 'tel:$phone';
-    if (await canLaunch(phoneUrl)) {
-      await launch(phoneUrl);
-    } else {
+  // কপি ফাংশন
+  void _copyToClipboard(String text, BuildContext context) {
+    Clipboard.setData(ClipboardData(text: text)).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ফোন কল শুরু করা সম্ভব হয়নি')),
+        SnackBar(content: Text('কপি করা হয়েছে: $text')),
       );
-    }
-  }
-
-  // গুগল ম্যাপসে লোকেশন ওপেন করার ফাংশন
-  void _openMaps(String address, BuildContext context) async {
-    final googleMapsUrl = 'https://www.google.com/maps/search/?q=$address';
-    if (await canLaunch(googleMapsUrl)) {
-      await launch(googleMapsUrl);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('গুগল ম্যাপে ঠিকানা খোলার সময় সমস্যা হয়েছে')),
-      );
-    }
+    });
   }
 
   @override
@@ -110,9 +95,8 @@ class Police extends StatelessWidget {
                     ],
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.phone, color: Colors.green),
-                    onPressed: () =>
-                        _makePhoneCall(policeStation['phone'] ?? '', context),
+                    icon: Icon(Icons.copy, color: Colors.green),
+                    onPressed: () => _copyToClipboard(policeStation['phone'] ?? '', context),
                   ),
                 ),
               );

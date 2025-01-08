@@ -44,6 +44,18 @@ dependencies:
   change_app_package_name: ^1.4.0
   intl: ^0.20.1
   onesignal_flutter: ^5.2.9
+  dio: ^5.7.0
+  path_provider: ^2.1.5
+  permission_handler: 11.3.1
+  flutter_native_splash: ^2.4.4
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: true
+  color: "#ffffff"
+  image: "assets/images/splash_image.png"
+
 
 dev_dependencies:
   flutter_test:
@@ -56,11 +68,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

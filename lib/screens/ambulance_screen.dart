@@ -3,21 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class BloodDonor extends StatelessWidget {
-  const BloodDonor({Key? key}) : super(key: key);
+class Ambulance extends StatelessWidget {
+  const Ambulance({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('রক্তদাতা তালিকা'),
-        backgroundColor: Colors.red,
+        title: const Text('অ্যাম্বুলেন্স সেবা'),
+        backgroundColor: Colors.green,
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('donors')
-            .where('isApproved', isEqualTo: true) // Filter only approved donors
+            .collection('ambulances')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -27,18 +26,18 @@ class BloodDonor extends StatelessWidget {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'কোনো রক্তদাতার তথ্য পাওয়া যায়নি।',
+                'কোনো অ্যাম্বুলেন্সের তথ্য পাওয়া যায়নি।',
                 style: TextStyle(fontSize: 18, color: Colors.black54),
               ),
             );
           }
 
-          final donors = snapshot.data!.docs;
+          final ambulances = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount: donors.length,
+            itemCount: ambulances.length,
             itemBuilder: (context, index) {
-              return _buildDonorCard(context, donors[index]);
+              return _buildAmbulanceCard(context, ambulances[index]);
             },
           );
         },
@@ -49,12 +48,11 @@ class BloodDonor extends StatelessWidget {
             context: context,
             builder: (context) {
               final nameController = TextEditingController();
-              final bloodGroupController = TextEditingController();
               final phoneController = TextEditingController();
               final addressController = TextEditingController();
 
               return AlertDialog(
-                title: Text('নতুন রক্তদাতা যোগ করুন'),
+                title: Text('নতুন অ্যাম্বুলেন্স যোগ করুন'),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -62,17 +60,9 @@ class BloodDonor extends StatelessWidget {
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
-                          labelText: 'নাম',
+                          labelText: 'অ্যাম্বুলেন্স নাম',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           errorText: nameController.text.isEmpty ? 'ফিল্ডটি পূরণ করুন' : null,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: bloodGroupController,
-                        decoration: InputDecoration(
-                          labelText: 'রক্তের গ্রুপ',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -88,7 +78,7 @@ class BloodDonor extends StatelessWidget {
                       TextField(
                         controller: addressController,
                         decoration: InputDecoration(
-                          labelText: 'ঠিকানা',
+                          labelText: 'অ্যাম্বুলেন্সের ঠিকানা',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
@@ -106,7 +96,6 @@ class BloodDonor extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       if (nameController.text.isEmpty ||
-                          bloodGroupController.text.isEmpty ||
                           phoneController.text.isEmpty ||
                           addressController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -118,12 +107,10 @@ class BloodDonor extends StatelessWidget {
                         return;
                       }
 
-                      FirebaseFirestore.instance.collection('donors').add({
+                      FirebaseFirestore.instance.collection('ambulances').add({
                         'name': nameController.text,
-                        'bloodGroup': bloodGroupController.text,
                         'phone': phoneController.text,
                         'address': addressController.text,
-                        'isApproved': false,  // New 'isApproved' field added with a value of false
                       });
 
                       Navigator.of(context).pop();
@@ -131,7 +118,7 @@ class BloodDonor extends StatelessWidget {
                       // Show a success message after adding
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('রক্তদাতার তথ্য সফলভাবে যুক্ত হয়েছে। আমরা যাচাই করার পর এটি শীঘ্রই আপডেট হবে।'),
+                          content: Text('অ্যাম্বুলেন্সের তথ্য সফলভাবে যুক্ত হয়েছে।'),
                           backgroundColor: Colors.green.shade300,
                         ),
                       );
@@ -143,13 +130,13 @@ class BloodDonor extends StatelessWidget {
             },
           );
         },
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.green,
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildDonorCard(BuildContext context, QueryDocumentSnapshot donor) {
+  Widget _buildAmbulanceCard(BuildContext context, QueryDocumentSnapshot ambulance) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       elevation: 5,
@@ -159,7 +146,7 @@ class BloodDonor extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              donor['name'] ?? 'নাম পাওয়া যায়নি',
+              ambulance['name'] ?? 'নাম পাওয়া যায়নি',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -168,17 +155,12 @@ class BloodDonor extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              'রক্তের গ্রুপ: ${donor['bloodGroup'] ?? 'তথ্য নেই'}',
+              'ফোন: ${ambulance['phone'] ?? 'তথ্য নেই'}',
               style: const TextStyle(fontSize: 16, color: Colors.black54),
             ),
             const SizedBox(height: 2),
             Text(
-              'ফোন: ${donor['phone'] ?? 'তথ্য নেই'}',
-              style: const TextStyle(fontSize: 15, color: Colors.black54),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'ঠিকানা: ${donor['address'] ?? 'তথ্য নেই'}',
+              'ঠিকানা: ${ambulance['address'] ?? 'তথ্য নেই'}',
               style: const TextStyle(fontSize: 15, color: Colors.black54),
             ),
             const SizedBox(height: 10),
@@ -186,23 +168,17 @@ class BloodDonor extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.copy, color: Colors.red),
+                  icon: const Icon(Icons.copy, color: Colors.green),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: donor['phone']))
-                        .then((_) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('ফোন নম্বর কপি করা হয়েছে!'),
-                          backgroundColor: Colors.green.shade300,
-                        ),
-                      );
-                    });
+                    final phone = ambulance['phone'];
+                    Clipboard.setData(ClipboardData(text: phone));
+                    _showSnackbar(context, 'ফোন নম্বর কপি হয়েছে');
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.location_on, color: Colors.red),
+                  icon: const Icon(Icons.location_on, color: Colors.green),
                   onPressed: () async {
-                    final address = donor['address'];
+                    final address = ambulance['address'];
                     final String googleMapsUrl =
                         'https://www.google.com/maps/search/?q=${Uri.encodeComponent(address)}';
                     if (await canLaunch(googleMapsUrl)) {

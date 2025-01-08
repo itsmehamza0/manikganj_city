@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Hotel extends StatelessWidget {
-  const Hotel({super.key});
+class ToLet extends StatelessWidget {
+  const ToLet({super.key});
 
   void _openMap(String address) async {
     final Uri url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$address');
@@ -16,15 +16,15 @@ class Hotel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('হোটেল সমূহ', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: Text('টু লেট', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.green.shade700,
         elevation: 5,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('hotels')
-            .where('isApproved', isEqualTo: true) // শুধুমাত্র অনুমোদিত হোটেল দেখাবে
+            .collection('tolet') // পরিবর্তন করুন হোটেল থেকে টু লেট
+            .where('isApproved', isEqualTo: true) // শুধুমাত্র অনুমোদিত ডাটা দেখাবে
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -32,15 +32,15 @@ class Hotel extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('কোনো হোটেল তথ্য পাওয়া যায়নি।', style: TextStyle(fontSize: 18)));
+            return Center(child: Text('কোনো তথ্য পাওয়া যায়নি।', style: TextStyle(fontSize: 18)));
           }
 
-          final hotelDocs = snapshot.data!.docs;
+          final toLetDocs = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount: hotelDocs.length,
+            itemCount: toLetDocs.length,
             itemBuilder: (context, index) {
-              final hotel = hotelDocs[index];
+              final toLet = toLetDocs[index];
 
               return Container(
                 margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -59,13 +59,13 @@ class Hotel extends StatelessWidget {
                   padding: EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      // Hotel Details
+                      // Display the details
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              hotel['name'] ?? 'নাম পাওয়া যায়নি',
+                              toLet['category'] ?? 'ক্যাটাগরি পাওয়া যায়নি',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -74,7 +74,15 @@ class Hotel extends StatelessWidget {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              'ঠিকানা: ${hotel['address'] ?? 'তথ্য নেই'}',
+                              'নাম: ${toLet['name'] ?? 'তথ্য নেই'}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'ঠিকানা: ${toLet['address'] ?? 'তথ্য নেই'}',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.red.shade600,
@@ -82,7 +90,7 @@ class Hotel extends StatelessWidget {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              'ফোন: ${hotel['phone'] ?? 'তথ্য নেই'}',
+                              'ফোন: ${toLet['phone'] ?? 'তথ্য নেই'}',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black54,
@@ -93,8 +101,8 @@ class Hotel extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {
-                          if (hotel['address'] != null && hotel['address'] != '') {
-                            _openMap(hotel['address']);
+                          if (toLet['address'] != null && toLet['address'] != '') {
+                            _openMap(toLet['address']);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -122,18 +130,41 @@ class Hotel extends StatelessWidget {
               final nameController = TextEditingController();
               final addressController = TextEditingController();
               final phoneController = TextEditingController();
+              String? selectedCategory;
 
               return AlertDialog(
-                title: Text('নতুন হোটেল যোগ করুন', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                title: Text(
+                  'নতুন তথ্য যোগ করুন',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'বিভাগ নির্বাচন করুন',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        items: ['আবাসিক হোটেল', 'ফ্ল্যাট', 'ম্যাচ ভাড়া']
+                            .map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          selectedCategory = value;
+                        },
+                      ),
+                      SizedBox(height: 12),
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
-                          labelText: 'হোটেল নাম',
+                          labelText: 'নাম',
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                       SizedBox(height: 12),
@@ -142,6 +173,7 @@ class Hotel extends StatelessWidget {
                         decoration: InputDecoration(
                           labelText: 'ঠিকানা',
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                       SizedBox(height: 12),
@@ -150,7 +182,9 @@ class Hotel extends StatelessWidget {
                         decoration: InputDecoration(
                           labelText: 'ফোন নম্বর',
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
+                        keyboardType: TextInputType.phone,
                       ),
                     ],
                   ),
@@ -162,9 +196,13 @@ class Hotel extends StatelessWidget {
                     },
                     child: Text('বাতিল', style: TextStyle(fontSize: 16, color: Colors.red)),
                   ),
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                     onPressed: () {
-                      if (nameController.text.isEmpty ||
+                      if (selectedCategory == null ||
+                          nameController.text.isEmpty ||
                           addressController.text.isEmpty ||
                           phoneController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +214,8 @@ class Hotel extends StatelessWidget {
                         return;
                       }
 
-                      FirebaseFirestore.instance.collection('hotels').add({
+                      FirebaseFirestore.instance.collection('tolet').add({
+                        'category': selectedCategory,
                         'name': nameController.text,
                         'address': addressController.text,
                         'phone': phoneController.text,
@@ -187,13 +226,12 @@ class Hotel extends StatelessWidget {
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                              'তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।'),
+                          content: Text('তথ্য সফলভাবে যুক্ত হয়েছে। যাচাইয়ের পর এটি শীঘ্রই আপডেট হবে।'),
                           backgroundColor: Colors.green.shade300,
                         ),
                       );
                     },
-                    child: Text('যোগ করুন', style: TextStyle(fontSize: 16, color: Colors.green)),
+                    child: Text('যোগ করুন', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               );
