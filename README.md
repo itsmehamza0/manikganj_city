@@ -1,16 +1,20 @@
-# manikganj_city
+# Manikganj City App  
 
-A new Flutter project.
+## 📌 Overview  
+**Manikganj City App** মানিকগঞ্জ শহরের বাসিন্দাদের জন্য প্রয়োজনীয় তথ্য সরবরাহ করে, যেমন শহরের ব্যবসা, জরুরি পরিষেবা, খবর ও ইভেন্ট, এবং ম্যাপ ইন্টিগ্রেশন।  
 
-## Getting Started
+## ✨ Features  
+- শহরের লোকাল ব্যবসা  
+- জরুরি পরিষেবার নম্বর  
+- খবর ও ইভেন্ট আপডেট  
+- Google Maps ইন্টিগ্রেশন  
+- ব্যবহারকারী বান্ধব ডিজাইন  
 
-This project is a starting point for a Flutter application.
+## 🛠️ Technologies  
+- Flutter  
+- Dart  
+- Firebase 
+- Google Maps API  
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📜 License  
+প্রাইভেট অ্যাপ, কেবলমাত্র অনুমোদিত ইউজারদের জন্য।
